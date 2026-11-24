@@ -1,0 +1,14 @@
+# datasets and checkpoints are not distributed with the code
+datasets/
+pretrained/
+weights/
+runs/
+
+# python / editor / OS artefacts
+__pycache__/
+*.py[cod]
+.idea/
+.vscode/
+.DS_Store
+*:Zone.Identifier
+*.pth
