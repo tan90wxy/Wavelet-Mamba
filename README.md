@@ -34,7 +34,7 @@ citation is reproduced at the end of this file; please cite it together with thi
 | `GAN_nonwave.py` | Same generator **without** the wavelet branch (ablation variant) |
 | `train_4.py` | Main training script: two-step G/D updates, linear warm-up of the adversarial weight, best-mIoU checkpointing |
 | `evaluate.py` | Evaluation with a trained checkpoint (same protocol as the validation loop of `train_4.py`) |
-| `model/` | Dataset loader (`Dataset.py`), metrics (`Metrics.py`), segmentation head, Swin/Mamba baselines |
+| `model/` | Dataset loader (`Dataset.py`), metrics (`Metrics.py`), segmentation loss (`losses.py`: Eqs. (25)-(27)), segmentation head, Swin/Mamba baselines |
 | `backbone/HRNet/` | HRNet-W18 backbone (config + model) |
 | `Vim.py`, `GT_Net.py`, `MF_Mamba.py` | SS2D / Mamba building blocks and the baseline networks used for comparison |
 | `train*.py`, `test*.py`, `visual.py` | Earlier training/evaluation variants kept for reference (paths and checkpoint names must be edited before use) |

@@ -13,7 +13,8 @@ Step-1  训练 Discriminator（D）
     · 损失：loss_D = BCE(d_real, 1) + BCE(d_fake, 0)
 
 Step-2  训练 Generator（G）
-    · 分割损失  : loss_seg = CrossEntropyLoss(pred, label)
+    · 分割损失  : loss_seg = 1.0*L_CE + 0.8*L_Dice + 0.4*L_Bd
+                  （稿件 Eq. (25)-(27)，见 model/losses.py）
     · 对抗损失  : loss_adv = BCE(D(softmax(pred)), 1)  [欺骗 D]
     · 总损失    : loss_G   = loss_seg + λ_adv * loss_adv
     · λ_adv 随训练进行线性衰减（warm-up → 稳定阶段）
@@ -41,6 +42,7 @@ from tensorboardX import SummaryWriter
 # ── 项目内部模块（与 train_2.py 保持一致）────────────────────
 from model import BasicDataset
 from model.Metrics import metric, ConfusionMatrix
+from model.losses import SegmentationLoss
 
 # ── GAN 核心模块（来自 GAN.py）──────────────────────────────
 from GAN import Generator, Discriminator
@@ -53,10 +55,10 @@ warnings.filterwarnings('ignore')
 # ============================================================
 
 NUM_CLASSES  : int   = 6
-MAX_EPOCH    : int   = 200
+MAX_EPOCH    : int   = 250        # Table 2: maximum number of epochs
 LR_G         : float = 1e-3       # Generator 学习率
 LR_D         : float = 1e-4       # Discriminator 学习率（通常比 G 低一量级）
-BATCH_SIZE   : int   = 4
+BATCH_SIZE   : int   = 16         # Table 2: batch size
 NDF          : int   = 64         # Discriminator 基础通道数
 BASE_CH      : int   = 32         # Generator CNN 编码器基础通道数
 NUM_STAGES   : int   = 4          # 编码器阶段数
@@ -167,7 +169,8 @@ def main() -> None:
     scheduler_D = CosineAnnealingWarmRestarts(optimizer_D, T_0=10, T_mult=1)
 
     # ── 损失函数 ─────────────────────────────────────────────
-    criterion_seg = nn.CrossEntropyLoss()
+    # 分割损失：L_CE + 0.8*L_Dice + 0.4*L_Bd（Eq. (25)-(27)，Table 2）
+    criterion_seg = SegmentationLoss(num_classes=NUM_CLASSES)
     # BCEWithLogitsLoss 接收原始 logits，内部含 Sigmoid，数值更稳定
     criterion_adv = nn.BCEWithLogitsLoss()
 

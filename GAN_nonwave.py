@@ -527,9 +527,9 @@ class Generator(nn.Module):
 
 class Discriminator(nn.Module):
     """
-    全卷积 CNN 判别器（改自 GATrans.py）。
+    全卷积 CNN 判别器（改自 GATrans.py；卷积核按稿件 Section 3.4 取 3×3）。
 
-    结构  : 5 × (Conv2d + LeakyReLU(0.2))，步长 2 逐步下采样
+    结构  : 5 × (Conv2d + LeakyReLU(0.2))，3×3 卷积、步长 2 逐步下采样，无归一化层
     输入  : [B, num_classes, H, W]  softmax 概率图 or one-hot GT
     输出  : [B, num_classes, H', W']  patch-level 原始 logits（无 Sigmoid）
               H' = H // 32, W' = W // 32
@@ -538,11 +538,11 @@ class Discriminator(nn.Module):
 
     def __init__(self, num_classes: int = 6, ndf: int = 64):
         super().__init__()
-        self.conv1      = nn.Conv2d(num_classes, ndf,      kernel_size=4, stride=2, padding=1)
-        self.conv2      = nn.Conv2d(ndf,         ndf * 2,  kernel_size=4, stride=2, padding=1)
-        self.conv3      = nn.Conv2d(ndf * 2,     ndf * 4,  kernel_size=4, stride=2, padding=1)
-        self.conv4      = nn.Conv2d(ndf * 4,     ndf * 8,  kernel_size=4, stride=2, padding=1)
-        self.classifier = nn.Conv2d(ndf * 8,     num_classes, kernel_size=4, stride=2, padding=1)
+        self.conv1      = nn.Conv2d(num_classes, ndf,      kernel_size=3, stride=2, padding=1)
+        self.conv2      = nn.Conv2d(ndf,         ndf * 2,  kernel_size=3, stride=2, padding=1)
+        self.conv3      = nn.Conv2d(ndf * 2,     ndf * 4,  kernel_size=3, stride=2, padding=1)
+        self.conv4      = nn.Conv2d(ndf * 4,     ndf * 8,  kernel_size=3, stride=2, padding=1)
+        self.classifier = nn.Conv2d(ndf * 8,     num_classes, kernel_size=3, stride=2, padding=1)
         self.leaky_relu = nn.LeakyReLU(negative_slope=0.2, inplace=True)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
